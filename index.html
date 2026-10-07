@@ -122,29 +122,7 @@
         </div>
     </header>
 
-    <div class="max-w-3xl mx-auto px-4 w-full mt-6">
-        <div class="flex items-center justify-between relative">
-            <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-slate-200 -z-10 mx-6 rounded-full"></div>
-            <div id="progressLine" class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-brandBlue-600 -z-10 mx-6 transition-all duration-500 rounded-full" style="width: 0%;"></div>
-            
-            <div class="flex flex-col items-center step-indicator-item" data-step="1">
-                <div id="stepDot1" class="w-10 h-10 rounded-full bg-brandBlue-600 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-brandBlue-500/30 transition-all">1</div>
-                <span class="text-[11px] font-semibold text-slate-800 mt-1.5">Evidence</span>
-            </div>
-            <div class="flex flex-col items-center step-indicator-item" data-step="2">
-                <div id="stepDot2" class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center transition-all">2</div>
-                <span class="text-[11px] font-medium text-slate-500 mt-1.5">Questionnaire</span>
-            </div>
-            <div class="flex flex-col items-center step-indicator-item" data-step="3">
-                <div id="stepDot3" class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center transition-all">3</div>
-                <span class="text-[11px] font-medium text-slate-500 mt-1.5">AI Audit</span>
-            </div>
-            <div class="flex flex-col items-center step-indicator-item" data-step="4">
-                <div id="stepDot4" class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center transition-all">4</div>
-                <span class="text-[11px] font-medium text-slate-500 mt-1.5">Emergency</span>
-            </div>
-        </div>
-    </div>
+
 
     <main class="flex-grow max-w-3xl mx-auto px-4 py-6 w-full mb-12">
         
@@ -1356,6 +1334,45 @@ async function askGeminiAI(userText) {
     console.error("Error:", error);
     return "Sorry, there was an error connecting to the AI.";
   }
+}
+            function goToStep(stepNum) {
+    stepNum = Number(stepNum);
+    if (!Number.isInteger(stepNum) || stepNum < 1 || stepNum > 2) return;
+
+    if (stepNum === 2 && (!appState.rxState || !appState.medState || !appState.invoiceState || !appState.licenseState)) {
+        showModal('Evidence Incomplete', 'Please capture all 4 required evidence documents before proceeding.', 'error');
+        return;
+    }
+
+    for (var i = 1; i <= 2; i++) {
+        var sec = $('wizardStep' + i);
+        if (!sec) continue;
+        if (i === stepNum) sec.classList.remove('hidden');
+        else sec.classList.add('hidden');
+    }
+
+    appState.currentStep = stepNum;
+    updateProgressBar(stepNum);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgressBar(stepNum) {
+    var percentage = ((stepNum - 1) / 1) * 100;
+    var line = $('progressLine');
+    if (line) line.style.width = percentage + '%';
+
+    for (var i = 1; i <= 2; i++) {
+        var dot = $('stepDot' + i);
+        if (!dot) continue;
+        var label = dot.nextElementSibling;
+        if (i <= stepNum) {
+            dot.className = 'w-10 h-10 rounded-full bg-brandBlue-600 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-brandBlue-500/30 transition-all';
+            if (label) label.className = 'text-[11px] font-semibold text-slate-800 mt-1.5';
+        } else {
+            dot.className = 'w-10 h-10 rounded-full bg-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center transition-all';
+            if (label) label.className = 'text-[11px] font-medium text-slate-500 mt-1.5';
+        }
+    }
 }
     </script>
     <noscript>
