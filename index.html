@@ -1336,7 +1336,23 @@
                 });
             }
         })();
-
+// Function to securely ask your backend to talk to Gemini
+async function askGeminiAI(userText) {
+  try {
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText })
+    });
+    
+    const data = await response.json();
+    return data.reply; 
+    
+  } catch (error) {
+    console.error("Error:", error);
+    return "Sorry, there was an error connecting to the AI.";
+  }
+}
     </script>
     <noscript>
         <div style="max-width:768px;margin:16px auto;padding:12px 16px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:12px;font:600 13px system-ui,sans-serif;">RxGuard India requires JavaScript to capture evidence and run the safety audit. Please enable JavaScript.</div>
