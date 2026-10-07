@@ -1346,6 +1346,10 @@ async function askGeminiAI(userText) {
     });
     
     const data = await response.json();
+      // Save to Supabase 'audits' table
+    await supabaseClient
+      .from('audits')
+      .insert([{ user_query: userText, ai_result: data.reply }]);
     return data.reply; 
     
   } catch (error) {
